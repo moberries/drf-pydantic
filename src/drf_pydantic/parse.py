@@ -127,6 +127,12 @@ def _convert_field(field: pydantic.fields.ModelField) -> serializers.Field:
         # Normal class
         if inspect.isclass(field.type_):
             return _convert_type(field.type_)(**extra_kwargs)
+        
+        # any type converted to serializers.CharField
+        if field.type_ is typing.Any:
+            if extra_kwargs['required'] and extra_kwargs['default'] is None:
+                extra_kwargs.pop('default')
+            return serializers.CharField(**extra_kwargs)
 
         # Alias
         if field.type_.__origin__ is typing.Literal:
