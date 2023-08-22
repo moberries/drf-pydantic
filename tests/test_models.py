@@ -23,6 +23,7 @@ def test_simple_model():
 
     assert serializer.__class__.__name__ == "PersonSerializer"
     assert len(serializer.fields) == 7
+    assert serializer.Meta.ref_name == "Person"
 
     # Regular fields
     assert isinstance(serializer.fields["name"], serializers.CharField)
@@ -59,6 +60,7 @@ def test_model_with_literal():
     serializer = Human.drf_serializer()
 
     assert serializer.__class__.__name__ == "HumanSerializer"
+    assert serializer.Meta.ref_name == "Human"
     assert len(serializer.fields) == 2
 
     # Normal field
@@ -81,6 +83,7 @@ def test_model_with_list():
     serializer = Team.drf_serializer()
 
     assert serializer.__class__.__name__ == "TeamSerializer"
+    assert serializer.Meta.ref_name == "Team"
     assert len(serializer.fields) == 3
 
     # Normal fields
@@ -91,7 +94,8 @@ def test_model_with_list():
     field = serializer.fields["members"]
     assert isinstance(field, serializers.ListField)
     assert isinstance(field.child, serializers.CharField)
-    assert field.default is serializers.empty
+    # default is now empty list
+    assert field.default is None
     assert field.allow_empty is True
 
 
@@ -105,6 +109,7 @@ def test_iheritance_future():
         salary: float
 
     serializer = Employee.drf_serializer()
+    assert serializer.Meta.ref_name == "Employee"
 
     assert serializer.__class__.__name__ == "EmployeeSerializer"
     assert len(serializer.fields) == 4
@@ -153,6 +158,8 @@ def test_nested_model():
     assert len(serializer.fields) == 2
     assert isinstance(serializer.fields["name"], serializers.CharField)
     assert isinstance(serializer.fields["job"], serializers.Serializer)
+    assert serializer.Meta.ref_name == "Person"
+    assert serializer.fields['job'].Meta.ref_name == 'Job'
 
     # Nested model
     job: serializers.Serializer = serializer.fields["job"]

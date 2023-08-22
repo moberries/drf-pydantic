@@ -62,11 +62,14 @@ def create_serializer_from_model(
         fields: dict[str, type[serializers.Field]] = {}
         for field_name, field in model_class.__fields__.items():
             fields[field_name] = _convert_field(field)
-        SERIALIZER_REGISTRY[model_class] = type(
+
+        serializer = type(
             f"{model_class.__name__}Serializer",
             (serializers.Serializer,),
             fields,
         )
+        serializer.Meta = type(f'{model_class.__name__}.Meta', (object,), {'ref_name': model_class.__name__})
+        SERIALIZER_REGISTRY[model_class] = serializer
     return SERIALIZER_REGISTRY[model_class]
 
 
